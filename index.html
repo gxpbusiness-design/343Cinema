@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>343Cinema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   343CINEMA — SHELL
+   80AD design system · iframe panel architecture
+═══════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+* { cursor:default; }
+a,button,[onclick],[role=button],select,
+input[type=checkbox],input[type=radio],
+input[type=submit],input[type=button],label { cursor:pointer; }
+input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),
+textarea,[contenteditable=true] { cursor:text; }
+
+:root {
+  --c1:#F5A67D; --c2:#E8887A; --c3:#9B7FD4;
+  --c1-soft:rgba(245,166,125,.15);
+  --c3-soft:rgba(155,127,212,.12);
+  --grain-opacity:.032;
+  --font-display:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --font-body:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --nav-h:56px;
+  --bar-h:36px; /* top status bar */
+}
+
+[data-theme=light] {
+  --bg:#FAFAFA; --bg2:#F2F2F2; --bg3:#E8E8E8;
+  --card:#FFFFFF;
+  --text:#0A0A0A; --text2:#444; --text3:#888; --text4:#BBB;
+  --border:rgba(0,0,0,.08); --border2:rgba(0,0,0,.14);
+  --hover:rgba(0,0,0,.03);
+  --shadow:0 2px 20px rgba(0,0,0,.06);
+  --shadow2:0 8px 40px rgba(0,0,0,.10);
+}
+[data-theme=dark] {
+  --bg:#0C0C0E; --bg2:#141416; --bg3:#1C1C1F;
+  --card:#141416;
+  --text:#F0F0F0; --text2:#ABABAB; --text3:#555; --text4:#2E2E2E;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.12);
+  --hover:rgba(255,255,255,.04);
+  --shadow:0 2px 20px rgba(0,0,0,.3);
+  --shadow2:0 8px 40px rgba(0,0,0,.5);
+}
+
+html,body {
+  height:100%; overflow:hidden;
+  background:var(--bg); color:var(--text);
+  font-family:var(--font-body);
+  font-size:13px; line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+  font-weight:300; letter-spacing:-.01em;
+}
+::selection { background:var(--c1); color:#fff; }
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:var(--c1); border-radius:2px; }
+
+/* ─── Grain ─── */
+#grain {
+  position:fixed; inset:0; pointer-events:none; z-index:9998;
+  opacity:var(--grain-opacity);
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px;
+}
+
+/* ─── Custom Cursor ─── */
+#cursor {
+  position:fixed; width:18px; height:18px;
+  border:1.5px solid var(--c1); border-radius:50%;
+  pointer-events:none; z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,background .2s;
+}
+#cursor.hover { width:38px; height:38px; background:var(--c1-soft); }
+#cursor-dot {
+  position:fixed; width:4px; height:4px;
+  background:var(--c1); border-radius:50%;
+  pointer-events:none; z-index:10000;
+  transform:translate(-50%,-50%);
+}
+
+/* ─── Top bar ─── */
+#top-bar {
+  position:fixed; top:0; left:0; right:0;
+  height:var(--bar-h);
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center;
+  padding:0 28px;
+  z-index:200;
+  gap:20px;
+}
+.tb-logo {
+  font-family:var(--font-display);
+  font-size:13px; font-weight:400;
+  letter-spacing:3px; text-transform:uppercase;
+  color:var(--text);
+  display:flex; align-items:center; gap:8px;
+  flex-shrink:0;
+  user-select:none;
+}
+.tb-logo-accent { color:var(--c1); }
+.tb-logo-mark {
+  width:20px; height:20px;
+  background:linear-gradient(135deg,var(--c1),var(--c3));
+  border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.tb-logo-mark svg { width:11px; height:11px; }
+.tb-divider { width:1px; height:16px; background:var(--border2); flex-shrink:0; }
+/* Project selector */
+#tb-project {
+  display:flex; align-items:center; gap:7px;
+  padding:3px 10px 3px 8px;
+  border:1px solid var(--border);
+  border-radius:100px;
+  background:var(--card);
+  cursor:pointer;
+  transition:all .2s;
+  font-size:11px; font-weight:400; color:var(--text2);
+  letter-spacing:.2px;
+  white-space:nowrap;
+}
+#tb-project:hover { border-color:var(--c1); color:var(--text); }
+.tb-proj-dot { width:6px; height:6px; border-radius:50%; background:var(--c1); flex-shrink:0; }
+.tb-proj-name { max-width:140px; overflow:hidden; text-overflow:ellipsis; }
+.tb-proj-chevron { opacity:.4; font-size:9px; }
+/* Status pill */
+.tb-status {
+  font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--text3); font-weight:400;
+  padding:2px 8px; border-radius:100px;
+  border:1px solid var(--border);
+}
+.tb-status.active { color:var(--c1); border-color:rgba(245,166,125,.3); background:var(--c1-soft); }
+/* Right controls */
+.tb-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
+.tb-btn {
+  width:26px; height:26px; border-radius:50%;
+  border:1px solid var(--border2); background:var(--card);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .2s; color:var(--text2);
+}
+.tb-btn:hover { border-color:var(--c1); color:var(--c1); box-shadow:0 0 0 3px var(--c1-soft); }
+.tb-btn svg { width:12px; height:12px; }
+
+/* ─── Navigation ─── */
+#nav {
+  position:fixed;
+  top:var(--bar-h); left:0; right:0;
+  height:var(--nav-h);
+  display:flex; align-items:center;
+  padding:0 28px;
+  z-index:190;
+  background:linear-gradient(to bottom,var(--bg) 60%,transparent);
+}
+.nav-tabs {
+  display:flex; align-items:center; gap:4px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:100px;
+  padding:4px;
+}
+.nav-tab {
+  padding:6px 18px;
+  border-radius:100px;
+  font-size:11px; font-weight:400;
+  letter-spacing:.5px; text-transform:uppercase;
+  color:var(--text3);
+  border:none; background:transparent;
+  font-family:var(--font-display);
+  cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; gap:7px;
+}
+.nav-tab:hover { color:var(--text); }
+.nav-tab.active {
+  color:var(--text);
+  background:var(--card);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+.nav-tab.active .tab-num { color:var(--c1); }
+.tab-num {
+  font-size:9px; font-weight:400;
+  color:var(--text4); letter-spacing:1px;
+  transition:color .2s;
+}
+.nav-flow {
+  display:flex; align-items:center;
+  margin-left:20px; gap:6px;
+  font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text4);
+}
+.nav-flow-arrow { color:var(--c1); opacity:.7; font-size:10px; }
+.nav-flow-step { cursor:pointer; transition:color .2s; }
+.nav-flow-step:hover { color:var(--text3); }
+.nav-flow-step.done { color:var(--text3); }
+
+/* ─── Iframe panels ─── */
+#panels {
+  position:fixed;
+  top:calc(var(--bar-h) + var(--nav-h));
+  left:0; right:0;
+  bottom:0;
+  overflow:hidden;
+}
+.panel {
+  position:absolute; inset:0;
+  border:none; width:100%; height:100%;
+  opacity:0; pointer-events:none;
+  transition:opacity .25s cubic-bezier(.4,0,.2,1);
+}
+.panel.active {
+  opacity:1; pointer-events:all;
+}
+/* Loading state */
+.panel-loader {
+  position:absolute; inset:0;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:14px; z-index:1;
+  transition:opacity .3s;
+}
+.panel-loader.hidden { opacity:0; pointer-events:none; }
+.loader-ring {
+  width:32px; height:32px;
+  border:1.5px solid var(--border2);
+  border-top-color:var(--c1);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loader-label {
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text3); font-weight:300;
+}
+
+/* ─── Project modal ─── */
+#proj-modal {
+  position:fixed; inset:0; z-index:9000;
+  background:rgba(0,0,0,.5);
+  backdrop-filter:blur(6px);
+  display:none; align-items:center; justify-content:center;
+}
+#proj-modal.open { display:flex; }
+.proj-modal-box {
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:20px;
+  width:min(480px,92vw);
+  padding:32px 36px 28px;
+  box-shadow:0 16px 60px rgba(0,0,0,.18);
+  animation:modal-up .2s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modal-up { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.pm-title {
+  font-size:28px; font-weight:300; letter-spacing:-1px;
+  color:var(--text); margin-bottom:4px;
+}
+.pm-title em { font-style:italic; color:var(--c1); }
+.pm-sub {
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text3); margin-bottom:28px;
+}
+.pm-section { margin-bottom:24px; }
+.pm-section-title {
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text3); margin-bottom:12px;
+  display:flex; align-items:center; gap:10px;
+}
+.pm-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+/* Existing projects list */
+.pm-proj-list { display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; }
+.pm-proj-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px; border-radius:12px;
+  border:1px solid var(--border); background:var(--bg2);
+  cursor:pointer; transition:all .15s;
+}
+.pm-proj-item:hover { border-color:var(--c1); background:var(--c1-soft); }
+.pm-proj-item.selected { border-color:var(--c1); background:var(--c1-soft); }
+.pm-proj-dot { width:8px; height:8px; border-radius:50%; background:var(--c1); flex-shrink:0; }
+.pm-proj-name { font-size:13px; font-weight:400; color:var(--text); flex:1; }
+.pm-proj-meta { font-size:10px; color:var(--text3); }
+/* New project input */
+.pm-field { margin-bottom:12px; }
+.pm-field label {
+  display:block; font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--text3); margin-bottom:6px;
+}
+.pm-input {
+  width:100%; padding:10px 14px;
+  border:1px solid var(--border); border-radius:12px;
+  background:var(--bg2); color:var(--text);
+  font-family:var(--font-display); font-size:13px; font-weight:300;
+  outline:none; transition:border-color .2s,box-shadow .2s;
+}
+.pm-input:focus { border-color:var(--c1); box-shadow:0 0 0 3px var(--c1-soft); }
+.pm-select {
+  width:100%; padding:10px 14px;
+  border:1px solid var(--border); border-radius:12px;
+  background:var(--bg2); color:var(--text);
+  font-family:var(--font-display); font-size:13px;
+  outline:none; cursor:pointer;
+  transition:border-color .2s;
+}
+.pm-select:focus { border-color:var(--c1); }
+.pm-foot {
+  display:flex; gap:8px; justify-content:flex-end;
+  margin-top:24px; padding-top:18px;
+  border-top:1px solid var(--border);
+}
+.pm-btn {
+  padding:8px 20px; border-radius:100px;
+  font-family:var(--font-display); font-size:12px; font-weight:400;
+  cursor:pointer; transition:all .2s;
+}
+.pm-btn.cancel {
+  border:1.5px solid var(--border2); background:none; color:var(--text2);
+}
+.pm-btn.cancel:hover { border-color:var(--text2); }
+.pm-btn.confirm {
+  border:none; background:var(--c1); color:#fff;
+  box-shadow:0 2px 12px rgba(245,166,125,.35);
+}
+.pm-btn.confirm:hover { opacity:.88; transform:translateY(-1px); }
+/* Tabs inside modal */
+.pm-mode-tabs {
+  display:flex; gap:4px; margin-bottom:20px;
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:100px; padding:3px;
+}
+.pm-mode-tab {
+  flex:1; padding:7px; text-align:center;
+  border-radius:100px; border:none; background:transparent;
+  font-family:var(--font-display); font-size:11px;
+  color:var(--text3); cursor:pointer; transition:all .2s;
+}
+.pm-mode-tab.active {
+  background:var(--card); color:var(--text);
+  border:1px solid var(--border); box-shadow:var(--shadow);
+}
+
+/* ─── Toast ─── */
+#toast {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--text); color:var(--bg);
+  font-family:var(--font-display); font-size:12px; font-weight:400;
+  padding:9px 20px; border-radius:100px;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+  opacity:0; transition:all .25s cubic-bezier(.4,0,.2,1);
+  pointer-events:none; white-space:nowrap; z-index:9997;
+  letter-spacing:.3px;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ─── Suite handoff banner ─── */
+#handoff-bar {
+  position:fixed; bottom:0; left:0; right:0;
+  height:44px;
+  background:linear-gradient(135deg,var(--c1),var(--c3));
+  display:none; align-items:center; justify-content:space-between;
+  padding:0 24px; z-index:300;
+  animation:slide-up .3s cubic-bezier(.4,0,.2,1);
+}
+#handoff-bar.show { display:flex; }
+@keyframes slide-up { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.hb-text { font-size:12px; font-weight:400; color:#fff; letter-spacing:.3px; }
+.hb-actions { display:flex; gap:8px; }
+.hb-btn {
+  padding:5px 14px; border-radius:100px;
+  font-family:var(--font-display); font-size:11px; font-weight:500;
+  cursor:pointer; transition:all .15s;
+}
+.hb-btn.primary { background:#fff; color:var(--c1); border:none; }
+.hb-btn.ghost { background:rgba(255,255,255,.2); color:#fff; border:1px solid rgba(255,255,255,.35); }
+.hb-btn:hover { opacity:.88; transform:translateY(-1px); }
+.hb-close { background:none; border:none; color:rgba(255,255,255,.6); font-size:16px; cursor:pointer; margin-left:8px; }
+.hb-close:hover { color:#fff; }
+
+/* ─── Splash screen ─── */
+#splash {
+  position:fixed; inset:0; z-index:9999;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:16px;
+  transition:opacity .4s;
+}
+#splash.hidden { opacity:0; pointer-events:none; }
+.splash-logo {
+  font-family:var(--font-display);
+  font-size:52px; font-weight:100; letter-spacing:12px;
+  text-transform:uppercase; color:var(--text);
+}
+.splash-logo span { color:var(--c1); }
+.splash-sub {
+  font-size:9px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--text3); font-weight:300;
+}
+.splash-ring {
+  width:36px; height:36px;
+  border:1.5px solid var(--border2);
+  border-top-color:var(--c1);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+  margin-top:8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Grain + Cursor -->
+<div id="grain"></div>
+<div id="cursor"></div>
+<div id="cursor-dot"></div>
+
+<!-- Splash -->
+<div id="splash">
+  <div class="splash-logo">343<span>Cinema</span></div>
+  <div class="splash-sub">Write · Prep · Produce</div>
+  <div class="splash-ring"></div>
+</div>
+
+<!-- Top bar -->
+<div id="top-bar">
+  <div class="tb-logo">
+    <div class="tb-logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    343<span class="tb-logo-accent">Cinema</span>
+  </div>
+  <div class="tb-divider"></div>
+  <div id="tb-project" onclick="openProjModal()">
+    <div class="tb-proj-dot"></div>
+    <div class="tb-proj-name" id="tb-proj-name">No project</div>
+    <div class="tb-proj-chevron">▾</div>
+  </div>
+  <div class="tb-status" id="tb-status">Setup</div>
+  <div class="tb-right">
+    <div class="tb-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<div id="nav">
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="tab-write" onclick="switchPanel('write')">
+      <span class="tab-num">01</span> Write
+    </button>
+    <button class="nav-tab" id="tab-prep" onclick="switchPanel('prep')">
+      <span class="tab-num">02</span> Prep
+    </button>
+    <button class="nav-tab" id="tab-produce" onclick="switchPanel('produce')">
+      <span class="tab-num">03</span> Produce
+    </button>
+  </div>
+  <div class="nav-flow" id="nav-flow" style="opacity:.5">
+    <span class="nav-flow-step" onclick="switchPanel('write')">WroteNote</span>
+    <span class="nav-flow-arrow">→</span>
+    <span class="nav-flow-step" onclick="switchPanel('prep')">MediumShot</span>
+    <span class="nav-flow-arrow">→</span>
+    <span class="nav-flow-step" onclick="switchPanel('produce')">80AD</span>
+  </div>
+</div>
+
+<!-- Panels -->
+<div id="panels">
+
+  <!-- Write: WroteNote -->
+  <div class="panel-loader" id="loader-write">
+    <div class="loader-ring"></div>
+    <div class="loader-label">Loading WroteNote</div>
+  </div>
+  <iframe class="panel active" id="panel-write"
+          src="wrotenote.html"
+          allow="clipboard-read; clipboard-write"
+          title="WroteNote — Write & Break Down"></iframe>
+
+  <!-- Prep: MediumShot -->
+  <div class="panel-loader" id="loader-prep">
+    <div class="loader-ring"></div>
+    <div class="loader-label">Loading MediumShot</div>
+  </div>
+  <iframe class="panel" id="panel-prep"
+          src=""
+          allow="clipboard-read; clipboard-write"
+          title="MediumShot — Shot Listing"></iframe>
+
+  <!-- Produce: 80AD -->
+  <div class="panel-loader" id="loader-produce">
+    <div class="loader-ring"></div>
+    <div class="loader-label">Loading 80AD</div>
+  </div>
+  <iframe class="panel" id="panel-produce"
+          src=""
+          allow="clipboard-read; clipboard-write"
+          title="80AD — Production Management"></iframe>
+
+</div>
+
+<!-- Project modal -->
+<div id="proj-modal">
+  <div class="proj-modal-box">
+    <div class="pm-title">Pro<em>ject</em></div>
+    <div class="pm-sub">Select or create a production</div>
+
+    <div class="pm-mode-tabs">
+      <button class="pm-mode-tab active" id="pm-tab-existing" onclick="pmSetMode('existing')">Existing</button>
+      <button class="pm-mode-tab" id="pm-tab-new" onclick="pmSetMode('new')">New Project</button>
+    </div>
+
+    <!-- Existing -->
+    <div id="pm-existing-pane">
+      <div class="pm-section-title">Your productions</div>
+      <div class="pm-proj-list" id="pm-proj-list">
+        <div style="padding:20px;text-align:center;color:var(--text3);font-size:12px;">No projects yet</div>
+      </div>
+    </div>
+
+    <!-- New -->
+    <div id="pm-new-pane" style="display:none">
+      <div class="pm-field">
+        <label>Project title</label>
+        <input class="pm-input" id="pm-new-name" placeholder="My Feature Film" type="text"
+               onkeydown="if(event.key==='Enter')pmConfirm()">
+      </div>
+      <div class="pm-field">
+        <label>Format</label>
+        <select class="pm-select" id="pm-new-format">
+          <option>Feature Film</option>
+          <option>Short Film</option>
+          <option>Documentary</option>
+          <option>Commercial</option>
+          <option>Music Video</option>
+          <option>TV Episode</option>
+          <option>Web Series</option>
+        </select>
+      </div>
+      <div class="pm-field">
+        <label>Director</label>
+        <input class="pm-input" id="pm-new-director" placeholder="Name" type="text">
+      </div>
+    </div>
+
+    <div class="pm-foot">
+      <button class="pm-btn cancel" onclick="closeProjModal()">Cancel</button>
+      <button class="pm-btn confirm" id="pm-confirm-btn" onclick="pmConfirm()">Select Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Handoff bar -->
+<div id="handoff-bar">
+  <div class="hb-text" id="hb-text">Ready to send breakdown to MediumShot</div>
+  <div class="hb-actions">
+    <button class="hb-btn primary" id="hb-action-btn" onclick="handoffAction()">Send Now</button>
+    <button class="hb-btn ghost" onclick="handoffDismiss()">Later</button>
+  </div>
+  <button class="hb-close" onclick="handoffDismiss()">×</button>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   343CINEMA — SHELL LOGIC
+═══════════════════════════════════════════════════ */
+
+// ── Suite state ──
+const SUITE_KEY = 'suite_343cinema';
+const SUITE_HANDOFF_KEY = 'suite_handoff';
+let _suiteState = { project:null, activePanel:'write', completedSteps:[] };
+
+function loadSuiteState() {
+  try { Object.assign(_suiteState, JSON.parse(localStorage.getItem(SUITE_KEY)||'{}')); } catch(e){}
+}
+function saveSuiteState() {
+  localStorage.setItem(SUITE_KEY, JSON.stringify(_suiteState));
+}
+
+// ── Panel management ──
+const PANELS = { write:'wrotenote.html', prep:'mediumshot.html', produce:'80ad.html' };
+const _loaded = { write:true, prep:false, produce:false };
+
+function switchPanel(id) {
+  // Load lazily
+  if (!_loaded[id]) {
+    _loaded[id] = true;
+    const frame = document.getElementById('panel-'+id);
+    const loader = document.getElementById('loader-'+id);
+    if(loader) loader.classList.remove('hidden');
+    frame.src = PANELS[id];
+    frame.onload = () => {
+      if(loader) loader.classList.add('hidden');
+      injectSuiteProtocol(frame);
+    };
+  }
+
+  // Switch active
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+
+  _suiteState.activePanel = id;
+  saveSuiteState();
+  updateStatusBadge();
+}
+
+// ── Inject suite.js protocol into loaded iframes ──
+function injectSuiteProtocol(frame) {
+  try {
+    const w = frame.contentWindow;
+    if(!w) return;
+    // Give the app its project context
+    w._suite = {
+      project: _suiteState.project,
+      onHandoffReady: (data) => receiveHandoff(data),
+      showToast: (msg) => toast(msg),
+    };
+    // Tell it which project is active
+    if(_suiteState.project) {
+      try { w.postMessage({ type:'suite_project', project:_suiteState.project }, '*'); } catch(e){}
+    }
+  } catch(e){ /* cross-origin safety */ }
+}
+
+// ── Listen for messages from iframes ──
+window.addEventListener('message', e => {
+  if(!e.data || !e.data.type) return;
+  const d = e.data;
+  switch(d.type) {
+    case 'suite_handoff_ready':
+      showHandoffBar(d.from, d.to, d.label);
+      break;
+    case 'suite_switch_panel':
+      switchPanel(d.panel);
+      break;
+    case 'suite_toast':
+      toast(d.msg);
+      break;
+    case 'suite_project_updated':
+      _suiteState.project = d.project;
+      saveSuiteState();
+      updateTopBar();
+      break;
+    case 'suite_step_complete':
+      if(!_suiteState.completedSteps.includes(d.step))
+        _suiteState.completedSteps.push(d.step);
+      saveSuiteState();
+      updateStatusBadge();
+      break;
+  }
+});
+
+// ── BroadcastChannel for cross-iframe communication ──
+let _bc;
+try { _bc = new BroadcastChannel('343cinema'); } catch(e){}
+if(_bc) _bc.onmessage = (e) => {
+  const d = e.data;
+  if(d.type === 'suite_handoff_ready') showHandoffBar(d.from, d.to, d.label);
+};
+
+// ── Handoff bar ──
+let _pendingHandoff = null;
+function showHandoffBar(from, to, label) {
+  const labels = { write:'WroteNote', prep:'MediumShot', produce:'80AD' };
+  _pendingHandoff = { from, to };
+  document.getElementById('hb-text').textContent =
+    `${labels[from]} → ${labels[to]}: ${label}`;
+  document.getElementById('handoff-bar').classList.add('show');
+}
+function handoffAction() {
+  if(!_pendingHandoff) return;
+  // Check project first
+  if(!_suiteState.project) {
+    closeProjModal._then = () => executeHandoff(_pendingHandoff);
+    openProjModal();
+    return;
+  }
+  executeHandoff(_pendingHandoff);
+}
+function handoffDismiss() {
+  document.getElementById('handoff-bar').classList.remove('show');
+  _pendingHandoff = null;
+}
+function executeHandoff(h) {
+  document.getElementById('handoff-bar').classList.remove('show');
+  switchPanel(h.to);
+  // Give the target iframe a tick to load, then signal it
+  setTimeout(() => {
+    const frame = document.getElementById('panel-'+h.to);
+    try {
+      frame.contentWindow.postMessage({
+        type:'suite_receive_handoff',
+        handoff: JSON.parse(localStorage.getItem(SUITE_HANDOFF_KEY)||'{}'),
+        project: _suiteState.project,
+      }, '*');
+    } catch(e){}
+    toast('Handoff complete → ' + h.to.charAt(0).toUpperCase() + h.to.slice(1));
+  }, 400);
+}
+function receiveHandoff(data) {
+  // Called when an app signals handoff readiness programmatically
+  if(data) localStorage.setItem(SUITE_HANDOFF_KEY, JSON.stringify(data));
+}
+
+// ── Project modal ──
+let _pmMode = 'existing';
+let _pmSelected = null;
+
+function openProjModal() {
+  renderProjList();
+  document.getElementById('proj-modal').classList.add('open');
+  if(_suiteState.project) {
+    // Pre-select current
+    setTimeout(() => {
+      document.querySelectorAll('.pm-proj-item').forEach(el => {
+        if(el.dataset.name === _suiteState.project?.name) el.classList.add('selected');
+      });
+    }, 50);
+  }
+}
+function closeProjModal() {
+  document.getElementById('proj-modal').classList.remove('open');
+  if(closeProjModal._then) { closeProjModal._then(); closeProjModal._then=null; }
+}
+function pmSetMode(mode) {
+  _pmMode = mode;
+  document.getElementById('pm-tab-existing').classList.toggle('active', mode==='existing');
+  document.getElementById('pm-tab-new').classList.toggle('active', mode==='new');
+  document.getElementById('pm-existing-pane').style.display = mode==='existing' ? '' : 'none';
+  document.getElementById('pm-new-pane').style.display = mode==='new' ? '' : 'none';
+  document.getElementById('pm-confirm-btn').textContent = mode==='new' ? 'Create Project' : 'Select Project';
+}
+function pmConfirm() {
+  if(_pmMode === 'new') {
+    const name = document.getElementById('pm-new-name').value.trim();
+    if(!name) { document.getElementById('pm-new-name').focus(); return; }
+    const proj = {
+      id: 'proj_'+Date.now(),
+      name,
+      format: document.getElementById('pm-new-format').value,
+      director: document.getElementById('pm-new-director').value.trim(),
+      created: Date.now(),
+    };
+    // Store in shared storage
+    const projs = getProjects();
+    projs.push(proj);
+    saveProjects(projs);
+    setActiveProject(proj);
+    // Propagate to all apps
+    broadcastProject(proj);
+    toast('Project created: ' + name);
+  } else {
+    if(!_pmSelected) { toast('Select a project first'); return; }
+    setActiveProject(_pmSelected);
+    broadcastProject(_pmSelected);
+    toast('Switched to: ' + _pmSelected.name);
+  }
+  closeProjModal();
+}
+function selectProjItem(el, proj) {
+  document.querySelectorAll('.pm-proj-item').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  _pmSelected = proj;
+}
+function renderProjList() {
+  const projs = getProjects();
+  const list = document.getElementById('pm-proj-list');
+  if(!projs.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3);font-size:12px;">No projects yet — create one</div>';
+    // Auto-switch to new tab
+    pmSetMode('new');
+    return;
+  }
+  list.innerHTML = projs.map(p => `
+    <div class="pm-proj-item" data-name="${p.name}" onclick="selectProjItem(this,${JSON.stringify(p).replace(/"/g,'&quot;')})">
+      <div class="pm-proj-dot"></div>
+      <div class="pm-proj-name">${p.name}</div>
+      <div class="pm-proj-meta">${p.format||''}</div>
+    </div>
+  `).join('');
+}
+function getProjects() {
+  try { return JSON.parse(localStorage.getItem('suite_projects')||'[]'); } catch(e){ return []; }
+}
+function saveProjects(p) { localStorage.setItem('suite_projects', JSON.stringify(p)); }
+function setActiveProject(proj) {
+  _suiteState.project = proj;
+  saveSuiteState();
+  updateTopBar();
+  updateStatusBadge();
+}
+function broadcastProject(proj) {
+  // Write to all three apps' localStorage keys
+  try {
+    // 80AD — ad_productions
+    const adProds = JSON.parse(localStorage.getItem('ad_productions')||'[]');
+    if(!adProds.find(p=>p.id===proj.id)) {
+      adProds.push({ id:proj.id, title:proj.name, type:proj.format||'Feature Film', color:'#F5A67D' });
+      localStorage.setItem('ad_productions', JSON.stringify(adProds));
+      localStorage.setItem('ad_active_prod', proj.id);
+    }
+    // MediumShot — mediumshot
+    const ms = JSON.parse(localStorage.getItem('mediumshot')||'{}');
+    if(!ms.projects) ms.projects = [];
+    if(!ms.projects.find(p=>p.id===proj.id)) {
+      ms.projects.push({ id:proj.id, name:proj.name, format:proj.format, director:proj.director, created:proj.created, shotlists:[], scripts:[], moods:[] });
+      ms.activeProject = ms.projects.length - 1;
+      localStorage.setItem('mediumshot', JSON.stringify(ms));
+    }
+  } catch(e){}
+
+  // PostMessage to loaded iframes
+  ['write','prep','produce'].forEach(id => {
+    if(_loaded[id]) {
+      const f = document.getElementById('panel-'+id);
+      try { f.contentWindow.postMessage({ type:'suite_project', project:proj }, '*'); } catch(e){}
+    }
+  });
+  if(_bc) _bc.postMessage({ type:'suite_project', project:proj });
+}
+
+// ── Top bar ──
+function updateTopBar() {
+  const name = _suiteState.project?.name || 'No project';
+  document.getElementById('tb-proj-name').textContent = name;
+}
+function updateStatusBadge() {
+  const steps = _suiteState.completedSteps || [];
+  const labels = ['Setup','Writing','Breakdown','Shot List','Scheduling'];
+  const el = document.getElementById('tb-status');
+  if(!_suiteState.project) { el.textContent='Setup'; el.classList.remove('active'); return; }
+  if(steps.includes('produce')) { el.textContent='In Production'; el.classList.add('active'); return; }
+  if(steps.includes('prep')) { el.textContent='In Prep'; el.classList.add('active'); return; }
+  if(steps.includes('write')) { el.textContent='Writing'; el.classList.add('active'); return; }
+  el.textContent='Active'; el.classList.add('active');
+}
+
+// ── Theme ──
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.dataset.theme === 'dark' ? 'light' : 'dark';
+  html.dataset.theme = next;
+  localStorage.setItem('suite_theme', next);
+  // Propagate to iframes
+  ['write','prep','produce'].forEach(id => {
+    if(_loaded[id]) {
+      const f = document.getElementById('panel-'+id);
+      try { f.contentWindow.postMessage({ type:'suite_theme', theme:next }, '*'); } catch(e){}
+    }
+  });
+}
+function applyTheme() {
+  const t = localStorage.getItem('suite_theme') || 'light';
+  document.documentElement.dataset.theme = t;
+}
+
+// ── Toast ──
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Cursor ──
+const cur = document.getElementById('cursor');
+const dot = document.getElementById('cursor-dot');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX+'px'; cur.style.top = e.clientY+'px';
+  dot.style.left = e.clientX+'px'; dot.style.top = e.clientY+'px';
+});
+document.addEventListener('mouseover', e => {
+  const el = e.target.closest('button,a,[onclick]');
+  cur.classList.toggle('hover', !!el);
+});
+
+// ── Init ──
+function init() {
+  applyTheme();
+  loadSuiteState();
+  updateTopBar();
+  updateStatusBadge();
+
+  // Show project modal on first launch if no project
+  if(!_suiteState.project) {
+    setTimeout(() => openProjModal(), 800);
+  }
+
+  // Hide splash
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hidden');
+    setTimeout(() => document.getElementById('splash').remove(), 500);
+  }, 1200);
+
+  // WroteNote is already loaded — attach onload handler for protocol injection
+  const writeFrame = document.getElementById('panel-write');
+  writeFrame.onload = () => {
+    document.getElementById('loader-write').classList.add('hidden');
+    injectSuiteProtocol(writeFrame);
+    if(_suiteState.project) broadcastProject(_suiteState.project);
+  };
+}
+init();
+</script>
+</body>
+</html>
